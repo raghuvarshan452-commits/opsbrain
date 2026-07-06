@@ -14,6 +14,7 @@ interface DocRecord {
   doc_type: string;
   status: string;
   uploaded_at: string;
+  entity_count: number;
 }
  
 export default function Upload() {
@@ -93,6 +94,7 @@ export default function Upload() {
             <th className="py-2">Filename</th>
             <th>Type</th>
             <th>Status</th>
+            <th>Entities</th>
             <th>Uploaded</th>
           </tr>
         </thead>
@@ -102,6 +104,7 @@ export default function Upload() {
               <td className="py-2">{d.filename}</td>
               <td>{d.doc_type}</td>
               <td>{d.status}</td>
+              <td className="text-teal">{d.entity_count}</td> 
               <td>{new Date(d.uploaded_at).toLocaleString()}</td>
             </tr>
           ))}
