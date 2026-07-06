@@ -5,8 +5,10 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
  
 from app.db.postgres import get_db
+from app.db.vector_store import add_chunks
 from app.models.orm_models import Document, Entity, AuditLog
 from app.services.storage_service import save_upload
+from app.services.chunking_service import chunk_text
 from app.agents.ingestion_agent import IngestionAgent
 from app.agents.entity_extraction_agent import EntityExtractionAgent
 from app.agents.knowledge_graph_agent import KnowledgeGraphAgent
@@ -50,8 +52,13 @@ async def upload_document(file: UploadFile = File(...), db: Session = Depends(ge
     db.add(AuditLog(document_id=doc.id, action="entities_extracted", agent_name="entity_extraction_agent"))
     db.commit()
  
-    kg_agent.merge(str(doc.id), doc.filename, entities)
+    kg_result = kg_agent.merge(str(doc.id), doc.filename, entities)
     db.add(AuditLog(document_id=doc.id, action="graph_updated", agent_name="knowledge_graph_agent"))
+    db.commit()
+ 
+    chunks = chunk_text(result["text"])
+    add_chunks(str(doc.id), doc.filename, chunks)
+    db.add(AuditLog(document_id=doc.id, action="chunked_and_embedded", agent_name="vector_store"))
     db.commit()
  
     doc.status = "processed"
@@ -64,6 +71,8 @@ async def upload_document(file: UploadFile = File(...), db: Session = Depends(ge
         "extracted_confidence": result["confidence"],
         "preview": result["text"][:300],
         "entity_count": len(entities),
+        "conflicts_found": kg_result["conflicts_found"],
+        "chunk_count": len(chunks),
     }
  
  
