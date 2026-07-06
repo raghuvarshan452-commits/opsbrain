@@ -1,13 +1,16 @@
 """
-Knowledge Graph Agent (v1)
------------------------------
+Knowledge Graph Agent (v2 — Day 5)
+--------------------------------------
 Inputs:   Document metadata + extracted entities
-Outputs:  New nodes/relationships written to Neo4j
+Outputs:  Updated graph nodes/edges, plus CONFLICTS_WITH edges when the
+          same entity value is seen under two different entity_types
 Memory:   Persistent (Neo4j = long-term memory)
 Talks to: Expert Copilot Agent, RCA Agent, Compliance Agent (later phases)
  
-Day 4 scope: MERGE-based node/relationship creation only.
-Day 5 scope: duplicate detection + conflict flagging on top of this.
+New in v2:
+- reference_count on each Entity node (how many documents mention it)
+- CONFLICTS_WITH relationship when a value is tagged inconsistently
+  across documents
 """
 from app.db.neo4j_client import neo4j_client
  
@@ -19,21 +22,52 @@ class KnowledgeGraphAgent:
             {"document_id": document_id, "filename": filename},
         )
  
+        conflicts = []
+ 
         for entity in entities:
+            value = entity.get("value")
+            entity_type = entity.get("entity_type")
+            confidence = entity.get("confidence", 0.0)
+ 
+            existing = neo4j_client.run_query(
+                "MATCH (e:Entity {value: $value}) WHERE e.entity_type <> $entity_type "
+                "RETURN e.entity_type AS existing_type LIMIT 1",
+                {"value": value, "entity_type": entity_type},
+            )
+            if existing:
+                conflicts.append(
+                    {
+                        "value": value,
+                        "new_type": entity_type,
+                        "existing_type": existing[0]["existing_type"],
+                    }
+                )
+ 
             neo4j_client.run_query(
                 """
                 MERGE (e:Entity {value: $value, entity_type: $entity_type})
-                SET e.confidence = $confidence
+                ON CREATE SET e.confidence = $confidence, e.reference_count = 1
+                ON MATCH SET e.reference_count = coalesce(e.reference_count, 1) + 1
                 WITH e
                 MATCH (d:Document {id: $document_id})
                 MERGE (d)-[:CONTAINS]->(e)
                 """,
                 {
-                    "value": entity.get("value"),
-                    "entity_type": entity.get("entity_type"),
-                    "confidence": entity.get("confidence", 0.0),
+                    "value": value,
+                    "entity_type": entity_type,
+                    "confidence": confidence,
                     "document_id": document_id,
                 },
             )
  
-        return {"status": "merged", "entity_count": len(entities)}
+        for c in conflicts:
+            neo4j_client.run_query(
+                """
+                MATCH (a:Entity {value: $value, entity_type: $new_type})
+                MATCH (b:Entity {value: $value, entity_type: $existing_type})
+                MERGE (a)-[:CONFLICTS_WITH]->(b)
+                """,
+                c,
+            )
+ 
+        return {"status": "merged", "entity_count": len(entities), "conflicts_found": len(conflicts)}
