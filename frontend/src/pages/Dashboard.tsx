@@ -1,9 +1,30 @@
+import { useEffect, useState } from "react";
+import KPICard from "../components/dashboard/KPICard";
+import { checkDbHealth } from "../services/api";
+ 
 export default function Dashboard() {
+  const [systemStatus, setSystemStatus] = useState("checking...");
+ 
+  useEffect(() => {
+    checkDbHealth()
+      .then((res) => {
+        const { postgres, neo4j } = res.data;
+        setSystemStatus(postgres === "connected" && neo4j === "connected" ? "All systems operational" : "Degraded");
+      })
+      .catch(() => setSystemStatus("Backend unreachable"));
+  }, []);
+ 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-3xl font-bold text-amber">Dashboard</h1>
-      {/* TODO: KPI cards, recent activity feed, quick-ask Copilot bar */}
-      <p className="text-gray-400">Day 1 placeholder — build KPI cards here.</p>
+      <h1 className="mb-2 text-3xl font-bold text-amber">Dashboard</h1>
+      <p className="mb-6 text-sm text-gray-400">{systemStatus}</p>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KPICard label="Documents Ingested" value={0} />
+        <KPICard label="Open Compliance Gaps" value={0} accent="amber" />
+        <KPICard label="Active Alerts" value={0} accent="amber" />
+        <KPICard label="Hours Saved (est.)" value="0.0" />
+      </div>
+      {/* TODO Day 3+: recent activity feed, quick-ask Copilot bar */}
     </div>
   );
 }
