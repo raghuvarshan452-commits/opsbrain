@@ -11,7 +11,7 @@ export const uploadDocument = (file: File) => {
   });
 };
 
- 
+export const getConflicts = () => api.get("/graph/conflicts"); 
 export const checkHealth = () => api.get("/health");
 export const checkDbHealth = () => api.get("/db-health");
 export const listDocuments = () => api.get("/documents");
