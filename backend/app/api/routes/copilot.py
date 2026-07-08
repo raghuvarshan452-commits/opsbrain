@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
  
 from app.db.postgres import get_db
 from app.models.orm_models import Query, Response, AuditLog
-from app.agents.copilot_agent import CopilotAgent
+from app.agents.orchestrator import OrchestratorAgent
  
 router = APIRouter()
-copilot_agent = CopilotAgent()
+orchestrator = OrchestratorAgent()
  
  
 class QueryRequest(BaseModel):
@@ -16,7 +16,9 @@ class QueryRequest(BaseModel):
  
 @router.post("/copilot/query")
 def ask_copilot(request: QueryRequest, db: Session = Depends(get_db)):
-    result = copilot_agent.answer(request.question)
+    routed = orchestrator.route({"type": "query", "question": request.question})
+    result = routed["result"]
+    trace = routed["trace"]
  
     query_record = Query(query_text=request.question)
     db.add(query_record)
@@ -32,11 +34,12 @@ def ask_copilot(request: QueryRequest, db: Session = Depends(get_db)):
     db.add(response_record)
     db.commit()
  
-    db.add(AuditLog(action="query_answered", agent_name="copilot_agent"))
+    db.add(AuditLog(action="query_answered", agent_name="orchestrator"))
     db.commit()
  
     return {
         "answer": result["answer"],
         "confidence": result["confidence"],
         "citations": result["citations"],
+        "trace": trace,
     }
