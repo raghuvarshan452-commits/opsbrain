@@ -10,6 +10,7 @@ export const uploadDocument = (file: File) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+export const askCopilot = (question: string) => api.post("/copilot/query", { question });
 
 export const getConflicts = () => api.get("/graph/conflicts"); 
 export const checkHealth = () => api.get("/health");
