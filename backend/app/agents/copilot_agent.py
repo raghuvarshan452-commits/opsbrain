@@ -7,6 +7,7 @@ Memory:   Reads Vector DB (ChromaDB) for retrieval
 Talks to: Orchestrator, Knowledge Graph Agent (later phases)
 """
 import json
+import re
 
 from groq import Groq
 
@@ -23,7 +24,8 @@ If the context does not contain enough information to answer confidently, respon
 exactly with: "I don't have enough information in the ingested documents to answer that."
 Do not guess or use outside knowledge.
 
-Return ONLY a JSON object, no markdown fences, with these exact keys:
+Return ONLY a JSON object, no markdown fences, no preamble, no explanation outside the JSON,
+with these exact keys:
 - "answer": your answer as a string
 - "confidence": a number from 0.0 to 1.0 reflecting how well the context supports the answer
 - "citations": an array of objects, each with "document" (filename) and "snippet"
@@ -34,6 +36,13 @@ Context chunks:
 
 Question: {question}
 """
+
+
+def _extract_json_block(raw: str) -> str:
+    """Pull out the first {...} JSON object from a string, in case the model
+    wrapped it in stray prose despite instructions not to."""
+    match = re.search(r"\{.*\}", raw, re.DOTALL)
+    return match.group(0) if match else raw
 
 
 class CopilotAgent:
@@ -57,6 +66,7 @@ class CopilotAgent:
             model="llama-3.3-70b-versatile",
             max_tokens=1024,
             messages=[{"role": "user", "content": prompt}],
+    
         )
 
         raw = response.choices[0].message.content.strip()
@@ -65,10 +75,14 @@ class CopilotAgent:
         try:
             parsed = json.loads(raw)
         except json.JSONDecodeError:
-            parsed = {
-                "answer": "I encountered an error parsing the response. Please try rephrasing your question.",
-                "confidence": 0.0,
-                "citations": [],
-            }
+            try:
+                parsed = json.loads(_extract_json_block(raw))
+            except json.JSONDecodeError:
+                print("RAW GROQ RESPONSE (unparseable):", repr(raw))
+                parsed = {
+                    "answer": "I don't have enough information in the ingested documents to answer that.",
+                    "confidence": 0.0,
+                    "citations": [],
+                }
 
         return parsed
