@@ -7,6 +7,7 @@ interface Message {
   text: string;
   confidence?: number;
   citations?: { document: string; snippet: string }[];
+  trace?: { agent: string; action: string }[];
 }
  
 export default function Copilot() {
@@ -35,6 +36,7 @@ export default function Copilot() {
           text: res.data.answer,
           confidence: res.data.confidence,
           citations: res.data.citations,
+          trace: res.data.trace,
         },
       ]);
     } catch {
@@ -51,7 +53,14 @@ export default function Copilot() {
       <h1 className="mb-4 text-3xl font-bold text-amber">Expert Copilot</h1>
       <div className="flex-1 overflow-y-auto rounded-xl bg-navy p-4">
         {messages.map((m, i) => (
-          <ChatMessage key={i} role={m.role} text={m.text} confidence={m.confidence} citations={m.citations} />
+          <ChatMessage
+            key={i}
+            role={m.role}
+            text={m.text}
+            confidence={m.confidence}
+            citations={m.citations}
+            trace={m.trace}
+          />
         ))}
         {loading && <p className="text-sm text-gray-400">Copilot is thinking...</p>}
         <div ref={bottomRef} />

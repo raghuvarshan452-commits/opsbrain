@@ -1,8 +1,8 @@
-export default function Analytics() {
+export default function Settings() {
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-3xl font-bold text-amber">Analytics</h1>
-      {/* TODO: Recharts — query volume, compliance trend, agent activity */}
+      <h1 className="mb-6 text-3xl font-bold text-amber">Settings</h1>
+      {/* TODO: user management, agent trace toggle */}
     </div>
   );
 }
