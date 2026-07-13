@@ -1,0 +1,23 @@
+Maintenance Inspection Report
+
+Site: Chennai Manufacturing Plant, Unit 3
+Report Date: March 15, 2026
+Prepared by: Rajesh Kumar, Senior Maintenance Engineer
+
+Summary:
+On March 15, 2026, a scheduled inspection was carried out on Equipment P-204 (Hydraulic Press Unit) located in Bay 7. The inspection was conducted by Rajesh Kumar and reviewed by Priya Sharma, Compliance Officer.
+
+Findings:
+Equipment P-204 showed signs of pressure irregularity during the test cycle. Vibration levels exceeded the threshold specified in Standard IS 800:2007 for structural steel components. A follow-up inspection is scheduled for April 2, 2026.
+
+Equipment T-118 (Conveyor Motor Assembly) was also inspected on the same date and found to be operating within normal parameters, compliant with ISO 9001:2015 quality requirements.
+
+Personnel Involved:
+- Rajesh Kumar (Senior Maintenance Engineer) — lead inspector
+- Priya Sharma (Compliance Officer) — sign-off authority
+- Arjun Nair (Safety Coordinator) — safety clearance
+
+Recommendations:
+Equipment P-204 requires a replacement hydraulic seal before April 10, 2026, per manufacturer guidelines under Standard IS 4247:1992. Equipment T-118 is cleared for continued operation with no immediate action required.
+
+Next scheduled audit: May 1, 2026.
