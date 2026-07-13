@@ -6,29 +6,29 @@ Outputs:  Updated graph nodes/edges, plus CONFLICTS_WITH edges when the
           same entity value is seen under two different entity_types
 Memory:   Persistent (Neo4j = long-term memory)
 Talks to: Expert Copilot Agent, RCA Agent, Compliance Agent (later phases)
- 
+
 New in v2:
 - reference_count on each Entity node (how many documents mention it)
 - CONFLICTS_WITH relationship when a value is tagged inconsistently
   across documents
 """
 from app.db.neo4j_client import neo4j_client
- 
- 
+
+
 class KnowledgeGraphAgent:
     def merge(self, document_id: str, filename: str, entities: list[dict]) -> dict:
         neo4j_client.run_query(
             "MERGE (d:Document {id: $document_id}) SET d.filename = $filename",
             {"document_id": document_id, "filename": filename},
         )
- 
+
         conflicts = []
- 
+
         for entity in entities:
             value = entity.get("value")
             entity_type = entity.get("entity_type")
             confidence = entity.get("confidence", 0.0)
- 
+
             existing = neo4j_client.run_query(
                 "MATCH (e:Entity {value: $value}) WHERE e.entity_type <> $entity_type "
                 "RETURN e.entity_type AS existing_type LIMIT 1",
@@ -42,7 +42,7 @@ class KnowledgeGraphAgent:
                         "existing_type": existing[0]["existing_type"],
                     }
                 )
- 
+
             neo4j_client.run_query(
                 """
                 MERGE (e:Entity {value: $value, entity_type: $entity_type})
@@ -59,7 +59,7 @@ class KnowledgeGraphAgent:
                     "document_id": document_id,
                 },
             )
- 
+
         for c in conflicts:
             neo4j_client.run_query(
                 """
@@ -69,5 +69,23 @@ class KnowledgeGraphAgent:
                 """,
                 c,
             )
- 
+
         return {"status": "merged", "entity_count": len(entities), "conflicts_found": len(conflicts)}
+
+    def get_cross_referenced_entities(self, min_references: int = 2) -> list[dict]:
+        results = neo4j_client.run_query(
+            """
+            MATCH (e:Entity)
+            WHERE e.reference_count >= $min_references
+            RETURN e.value AS value, e.entity_type AS entity_type, e.reference_count AS reference_count
+            """,
+            {"min_references": min_references},
+        )
+        return [
+            {
+                "value": r["value"],
+                "entity_type": r["entity_type"],
+                "reference_count": r["reference_count"],
+            }
+            for r in results
+        ]
