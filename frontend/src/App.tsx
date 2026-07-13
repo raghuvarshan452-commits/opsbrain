@@ -9,16 +9,20 @@ import Settings from "./pages/Settings";
 import Upload from "./pages/Upload";
 import Maintenance from "./pages/Maintenance"; 
  
+import Notifications from "./pages/Notifications";
+ 
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/upload", label: "Upload" },
   { to: "/copilot", label: "Copilot" },
   { to: "/graph", label: "Knowledge Graph" },
   { to: "/compliance", label: "Compliance" },
-  { to: "/maintenance", label: "Maintenance" },   // ADD THIS LINE
+  { to: "/maintenance", label: "Maintenance" },
+  { to: "/notifications", label: "Notifications" },
   { to: "/analytics", label: "Analytics" },
   { to: "/settings", label: "Settings" },
 ];
+
  
 
  
@@ -57,6 +61,7 @@ export default function App() {
         <Route path="/settings" element={<Shell><Settings /></Shell>} />
         <Route path="/upload" element={<Shell><Upload /></Shell>} />
         <Route path="/maintenance" element={<Shell><Maintenance /></Shell>} />
+        <Route path="/notifications" element={<Shell><Notifications /></Shell>} />
       </Routes>
     </BrowserRouter>
   );
