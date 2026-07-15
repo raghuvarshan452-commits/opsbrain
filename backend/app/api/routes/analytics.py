@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.services.analytics_service import get_analytics_summary
 from app.db.postgres import SessionLocal
 from app.models.orm_models import AuditLog
+from app.services.roi_service import calculate_roi
  
 router = APIRouter()
  
@@ -10,6 +11,7 @@ router = APIRouter()
 @router.get("/analytics/summary")
 def analytics_summary():
     return get_analytics_summary()
+
  
  
 @router.get("/audit-log")
@@ -27,3 +29,8 @@ def get_audit_log(limit: int = 50):
         }
         for log in logs
     ]
+
+@router.get("/analytics/roi")
+def analytics_roi():
+    return calculate_roi()
+
