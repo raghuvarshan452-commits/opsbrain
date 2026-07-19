@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
  
-from app.api.routes import health, db_health, documents, graph, search, copilot
+from app.api.routes import health, db_health, documents, graph, search, copilot, compliance, rca, alerts, analytics
  
 app = FastAPI(title="OpsBrain API", version="0.1.0")
  
@@ -19,6 +19,10 @@ app.include_router(documents.router, prefix="/api", tags=["documents"])
 app.include_router(graph.router, prefix="/api", tags=["graph"])
 app.include_router(search.router, prefix="/api", tags=["search"]) 
 app.include_router(copilot.router, prefix="/api", tags=["copilot"])
+app.include_router(compliance.router, prefix="/api", tags=["compliance"])
+app.include_router(rca.router, prefix="/api", tags=["rca"])
+app.include_router(alerts.router, prefix="/api", tags=["alerts"])
+app.include_router(analytics.router, prefix="/api", tags=["analytics"])
  
 @app.get("/")
 def root():

@@ -17,5 +17,7 @@ export const checkHealth = () => api.get("/health");
 export const checkDbHealth = () => api.get("/db-health");
 export const listDocuments = () => api.get("/documents");
 export const getGraphData = () => api.get("/graph");
- 
+export const checkCompliance = (documentId: string) => api.post(`/compliance/check/${documentId}`);
+export const getRCA = (tag: string) => api.get(`/rca/${tag}`);
+export const getAlerts = () => api.get("/alerts");
 export default api;
