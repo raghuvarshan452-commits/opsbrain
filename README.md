@@ -260,6 +260,5 @@ opsbrain/
 
 Built for the ET AI Hackathon 2026. License to be determined.
 =======
-# Back end : RAGHUVARSHAN V R
-# Front end: KAMALESH S
->>>>>>> Stashed changes
+# Backend : RAGHUVARSHAN V R
+# Frontend: KAMALESH S
