@@ -20,4 +20,8 @@ export const getGraphData = () => api.get("/graph");
 export const checkCompliance = (documentId: string) => api.post(`/compliance/check/${documentId}`);
 export const getRCA = (tag: string) => api.get(`/rca/${tag}`);
 export const getAlerts = () => api.get("/alerts");
+export const getAnalyticsSummary = () => api.get("/analytics/summary");
+export const getAuditLog = () => api.get("/audit-log");
+export const getROI = () => api.get("/analytics/roi");
+export const detectContradictions = () => api.post("/graph/detect-contradictions");
 export default api;

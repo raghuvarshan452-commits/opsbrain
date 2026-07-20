@@ -1,52 +1,45 @@
 import { useEffect, useState } from "react";
 import GraphExplorer from "../components/graph/GraphExplorer";
-import { getGraphData, getConflicts } from "../services/api";
-
-interface GraphNode {
-  id: string;
-  label: string;
-  type: string;
-  confidence?: number;
-  reference_count?: number;
-  [key: string]: unknown;
-}
-
-interface GraphLink {
-  source: string;
-  target: string;
-  kind?: string;
-  [key: string]: unknown;
-}
-
+import { getGraphData, detectContradictions } from "../services/api";
+ 
 interface GraphData {
-  nodes: GraphNode[];
-  links: GraphLink[];
+  nodes: any[];
+  links: any[];
 }
-
-interface Conflict {
-  value: string;
-  type_a: string;
-  type_b: string;
-}
-
+ 
 export default function GraphExplorerPage() {
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
-  const [conflicts, setConflicts] = useState<Conflict[]>([]);
-
+  const [scanning, setScanning] = useState(false);
+ 
+  const refresh = () => {
+    getGraphData().then((res) => setGraphData(res.data)).catch(() => {});
+  };
+ 
   useEffect(() => {
-    getGraphData()
-      .then((res) => setGraphData(res.data))
-      .catch(() => {});
-    getConflicts()
-      .then((res) => setConflicts(res.data))
-      .catch(() => {});
+    refresh();
   }, []);
-
+ 
+  const runScan = async () => {
+    setScanning(true);
+    await detectContradictions();
+    refresh();
+    setScanning(false);
+  };
+ 
   return (
     <div className="flex h-full flex-col p-8">
-      <h1 className="mb-4 text-3xl font-bold text-amber">Knowledge Graph Explorer</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-amber">Knowledge Graph Explorer</h1>
+        <button
+          onClick={runScan}
+          disabled={scanning}
+          className="rounded bg-amber px-4 py-2 text-sm font-semibold text-navy disabled:opacity-50"
+        >
+          {scanning ? "Scanning..." : "Scan for Contradictions"}
+        </button>
+      </div>
       <div className="h-[600px] overflow-hidden rounded-xl bg-graphite">
-        <GraphExplorer graphData={graphData} conflicts={conflicts} />
+        <GraphExplorer graphData={graphData} />
       </div>
     </div>
   );
