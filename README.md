@@ -1,5 +1,4 @@
 ﻿# OpsBrain
-<<<<<<< Updated upstream
 ### Agentic Industrial Knowledge Intelligence Platform
 **ET AI Hackathon 2026 — Problem Statement #8**
 
