@@ -7,9 +7,10 @@ import Compliance from "./pages/Compliance";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Upload from "./pages/Upload";
-import Maintenance from "./pages/Maintenance"; 
+import Maintenance from "./pages/Maintenance";
 import Notifications from "./pages/Notifications";
- 
+import AmbientBackground from "./components/spatial/AmbientBackground";
+
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/upload", label: "Upload" },
@@ -22,9 +23,7 @@ const navItems = [
   { to: "/settings", label: "Settings" },
 ];
 
- 
 
- 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-navy">
@@ -46,23 +45,25 @@ function Shell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
- 
+
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Shell><Dashboard /></Shell>} />
-        <Route path="/copilot" element={<Shell><Copilot /></Shell>} />
-        <Route path="/graph" element={<Shell><GraphExplorer /></Shell>} />
-        <Route path="/compliance" element={<Shell><Compliance /></Shell>} />
-        <Route path="/analytics" element={<Shell><Analytics /></Shell>} />
-        <Route path="/settings" element={<Shell><Settings /></Shell>} />
-        <Route path="/upload" element={<Shell><Upload /></Shell>} />
-        <Route path="/maintenance" element={<Shell><Maintenance /></Shell>} />
-        <Route path="/notifications" element={<Shell><Notifications /></Shell>} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <AmbientBackground />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Shell><Dashboard /></Shell>} />
+          <Route path="/copilot" element={<Shell><Copilot /></Shell>} />
+          <Route path="/graph" element={<Shell><GraphExplorer /></Shell>} />
+          <Route path="/compliance" element={<Shell><Compliance /></Shell>} />
+          <Route path="/analytics" element={<Shell><Analytics /></Shell>} />
+          <Route path="/settings" element={<Shell><Settings /></Shell>} />
+          <Route path="/upload" element={<Shell><Upload /></Shell>} />
+          <Route path="/maintenance" element={<Shell><Maintenance /></Shell>} />
+          <Route path="/notifications" element={<Shell><Notifications /></Shell>} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
- 
