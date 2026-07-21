@@ -5,13 +5,20 @@ from app.api.routes import health, db_health, documents, graph, search, copilot,
  
 app = FastAPI(title="OpsBrain API", version="0.1.0")
  
+from app.core.config import settings
+ 
+allowed_origins = ["http://localhost:5173"]
+if settings.environment == "production":
+    allowed_origins = ["https://opsbrain.vercel.app"]  # update once the real Vercel domain exists
+ 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
  
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(db_health.router, prefix="/api", tags=["health"])
